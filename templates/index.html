@@ -1,0 +1,180 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="SepsisGuard — Machine-learning clinical decision support tool for real-time sepsis risk assessment using 12 vital-sign and laboratory inputs.">
+<title>SepsisGuard — Clinical Risk Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" role="complementary" aria-label="Application sidebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>SepsisGuard</h1>
+        <p>Clinical Decision Support</p>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Sample Patients</h2>
+      <p class="sidebar-hint">Load a pre-filled example to try the tool.</p>
+      <button class="preset-btn" data-preset="healthy" id="btn-healthy" aria-label="Load healthy adult patient preset">
+        <span class="preset-dot dot-green" aria-hidden="true"></span>
+        <span>Healthy Adult</span>
+      </button>
+      <button class="preset-btn" data-preset="warning" id="btn-warning" aria-label="Load early warning signs patient preset">
+        <span class="preset-dot dot-amber" aria-hidden="true"></span>
+        <span>Early Warning Signs</span>
+      </button>
+      <button class="preset-btn" data-preset="critical" id="btn-critical" aria-label="Load critical high risk patient preset">
+        <span class="preset-dot dot-red" aria-hidden="true"></span>
+        <span>Critical / High Risk</span>
+      </button>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Model</h2>
+      <dl class="meta-list">
+        <dt>Algorithm</dt><dd>Random Forest Classifier</dd>
+        <dt>Training data</dt><dd>PhysioNet Sepsis 2019</dd>
+        <dt>Inputs</dt><dd>12 vitals &amp; labs</dd>
+        <dt>Trees</dt><dd>200 estimators</dd>
+      </dl>
+    </div>
+
+    <p class="disclaimer" role="note">
+      ⚠️ For educational use only. Not a substitute for professional medical diagnosis or clinical judgement.
+    </p>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" role="main">
+
+    <div class="topbar">
+      <div>
+        <h2>Patient Risk Assessment</h2>
+        <p>Enter vitals and lab values to estimate sepsis risk.</p>
+      </div>
+      <svg class="ekg" viewBox="0 0 300 60" preserveAspectRatio="none" aria-hidden="true">
+        <path id="ekg-path" d="M0,30 L60,30 L75,10 L90,50 L105,30 L300,30" />
+      </svg>
+    </div>
+
+    <div class="content-grid">
+
+      <!-- INPUT PANEL -->
+      <section class="panel" aria-labelledby="vitals-heading">
+        <h3 class="panel-title" id="vitals-heading">Vital Signs</h3>
+        <div class="field-grid">
+          <label for="HR">Heart Rate <span class="unit">bpm</span>
+            <input type="number" id="HR" name="HR" value="80" min="20" max="300" required aria-describedby="HR-hint">
+            <span class="field-hint" id="HR-hint">Normal: 60–100</span>
+          </label>
+          <label for="O2Sat">Oxygen Saturation <span class="unit">%</span>
+            <input type="number" id="O2Sat" name="O2Sat" value="98" min="50" max="100" required aria-describedby="O2Sat-hint">
+            <span class="field-hint" id="O2Sat-hint">Normal: ≥ 95</span>
+          </label>
+          <label for="Temp">Temperature <span class="unit">°C</span>
+            <input type="number" step="0.1" id="Temp" name="Temp" value="37.0" min="30" max="45" required aria-describedby="Temp-hint">
+            <span class="field-hint" id="Temp-hint">Normal: 36.1–37.2</span>
+          </label>
+          <label for="SBP">Systolic BP <span class="unit">mmHg</span>
+            <input type="number" id="SBP" name="SBP" value="120" min="40" max="300" required aria-describedby="SBP-hint">
+            <span class="field-hint" id="SBP-hint">Normal: 100–140</span>
+          </label>
+          <label for="MAP">Mean Arterial Pressure <span class="unit">mmHg</span>
+            <input type="number" id="MAP" name="MAP" value="85" min="20" max="200" required aria-describedby="MAP-hint">
+            <span class="field-hint" id="MAP-hint">Normal: 70–100</span>
+          </label>
+          <label for="Resp">Respiratory Rate <span class="unit">br/min</span>
+            <input type="number" id="Resp" name="Resp" value="16" min="4" max="60" required aria-describedby="Resp-hint">
+            <span class="field-hint" id="Resp-hint">Normal: 12–20</span>
+          </label>
+        </div>
+
+        <h3 class="panel-title" id="labs-heading">Lab Values</h3>
+        <div class="field-grid">
+          <label for="BUN">BUN <span class="unit">mg/dL</span>
+            <input type="number" step="0.1" id="BUN" name="BUN" value="15" min="1" max="200" required aria-describedby="BUN-hint">
+            <span class="field-hint" id="BUN-hint">Normal: 7–20</span>
+          </label>
+          <label for="Creatinine">Creatinine <span class="unit">mg/dL</span>
+            <input type="number" step="0.1" id="Creatinine" name="Creatinine" value="1.0" min="0.1" max="20" required aria-describedby="Creatinine-hint">
+            <span class="field-hint" id="Creatinine-hint">Normal: 0.6–1.2</span>
+          </label>
+          <label for="Glucose">Glucose <span class="unit">mg/dL</span>
+            <input type="number" step="0.1" id="Glucose" name="Glucose" value="100" min="20" max="800" required aria-describedby="Glucose-hint">
+            <span class="field-hint" id="Glucose-hint">Normal: 70–99</span>
+          </label>
+          <label for="WBC">White Blood Cells <span class="unit">10⁹/L</span>
+            <input type="number" step="0.1" id="WBC" name="WBC" value="7.0" min="0.1" max="200" required aria-describedby="WBC-hint">
+            <span class="field-hint" id="WBC-hint">Normal: 4.5–11.0</span>
+          </label>
+          <label for="Age">Age <span class="unit">yrs</span>
+            <input type="number" id="Age" name="Age" value="50" min="0" max="130" required>
+          </label>
+          <label for="Gender">Gender
+            <select id="Gender" name="Gender">
+              <option value="1">Male</option>
+              <option value="0">Female</option>
+            </select>
+          </label>
+        </div>
+
+        <button id="assess-btn" class="assess-btn" aria-live="polite">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Run Risk Assessment
+        </button>
+
+        <p class="error-banner" id="error-banner" role="alert" hidden></p>
+      </section>
+
+      <!-- RESULT PANEL -->
+      <section class="panel result-panel" id="result-panel" aria-labelledby="assessment-heading" aria-live="polite">
+        <h3 class="panel-title" id="assessment-heading">Assessment</h3>
+
+        <div class="result-empty" id="result-empty">
+          <div class="empty-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <p>Results will appear here once you run an assessment.</p>
+          <p class="empty-sub">Use the sample patients on the left to try a quick demo.</p>
+        </div>
+
+        <div class="result-content" id="result-content" hidden>
+          <div class="risk-ring-wrap">
+            <svg class="risk-ring" viewBox="0 0 120 120" role="img" aria-labelledby="ring-title">
+              <title id="ring-title">Sepsis risk gauge</title>
+              <circle class="ring-track" cx="60" cy="60" r="52"></circle>
+              <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="52"></circle>
+            </svg>
+            <div class="risk-number">
+              <span id="risk-value">0%</span>
+              <small>risk</small>
+            </div>
+          </div>
+
+          <p class="risk-label" id="risk-label">—</p>
+          <p class="risk-note" id="risk-note"></p>
+
+          <table class="summary-table" id="summary-table" aria-label="Submitted patient values">
+            <caption class="sr-only">Patient values submitted for this assessment</caption>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
